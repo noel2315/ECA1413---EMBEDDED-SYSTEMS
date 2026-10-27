@@ -1,0 +1,52 @@
+
+#define GAS_PIN A0
+#define TRIG_PIN 9
+#define ECHO_PIN 10
+#define PIR_PIN 2
+#define LED_PIN 12
+#define BUZZER_PIN 11
+
+int gasLimit = 400;
+long duration;
+int distance;
+
+void setup() {
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  pinMode(PIR_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int gasValue = analogRead(GAS_PIN);
+  int motion = digitalRead(PIR_PIN);
+
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  duration = pulseIn(ECHO_PIN, HIGH, 30000);
+  distance = duration * 0.034 / 2;
+
+  Serial.print("Gas: ");
+  Serial.print(gasValue);
+  Serial.print("  Distance: ");
+  Serial.print(distance);
+  Serial.print(" cm  Motion: ");
+  Serial.println(motion);
+
+  if (gasValue > gasLimit || motion == HIGH ||
+      (distance > 0 && distance < 20)) {
+    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(BUZZER_PIN, HIGH);
+  } else {
+    digitalWrite(LED_PIN, LOW);
+    digitalWrite(BUZZER_PIN, LOW);
+  }
+
+  delay(200);
+}
